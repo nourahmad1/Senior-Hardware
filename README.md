@@ -1,38 +1,35 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/-IRFPE-1a1a2e?style=for-the-badge&labelColor=1a1a2e" height="60"/>
+<img src="https://img.shields.io/badge/-IRFPE-1a1a2e?style=for-the-badge&labelColor=1a1a2e" height="56"/>
 
 # Interactive Robot for Programming Education
 
-**A BLE‑controlled educational robot powered by two ESP32 microcontrollers**
-
-<br/>
+**A BLE‑controlled educational robot powered by two communicating ESP32 microcontrollers**
 
 [![ESP32](https://img.shields.io/badge/MCU-ESP32-E7352C?style=for-the-badge&logo=espressif&logoColor=white)](.)
 [![C++](https://img.shields.io/badge/Language-C++-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)](.)
 [![BLE](https://img.shields.io/badge/Link-BLE-0082FC?style=for-the-badge&logo=bluetooth&logoColor=white)](.)
 [![Arduino](https://img.shields.io/badge/Built%20with-Arduino-00979D?style=for-the-badge&logo=arduino&logoColor=white)](.)
+[![License](https://img.shields.io/badge/License-Academic-555555?style=for-the-badge)](.)
+
+🎓 **Senior Capstone Project** — Arab American University
+Faculty of Engineering · Computer Systems Engineering
 
 <br/>
-
-🎓 **Senior Capstone Project**
-Arab American University · Faculty of Engineering · Computer Systems Engineering
-
-</div>
-
-<br/>
-
-<div align="center">
-
-### 👥 Team
-
-</div>
-
-<div align="center">
 
 | 🧑‍🏫 Supervisor | 🎓 Student | 🎓 Student | 🎓 Student |
 |:---:|:---:|:---:|:---:|
-| Dr. Sami Awad | Diana Ghannam | Misk Haneef | Nour Albzoor |
+| Dr. Sami Awad  | Nour Albzoor | Diana Ghannam | Misk Haneef | 
+
+</div>
+
+<br/>
+
+<div align="center">
+
+### 🧭 Quick navigation
+
+[Overview](#-overview) · [Architecture](#%EF%B8%8F-system-architecture) · [Repo structure](#-repository-structure) · [ESP1 Master](#-esp1--master) · [ESP2 Slave](#-esp2--slave) · [ESP-NOW protocol](#-espnow-communication) · [Build & flash](#%EF%B8%8F-building--flashing) · [Notes](#-notes)
 
 </div>
 
@@ -42,9 +39,9 @@ Arab American University · Faculty of Engineering · Computer Systems Engineeri
 
 ## 📖 Overview
 
-IRFPE is a small robot that teaches programming concepts hands‑on. A companion mobile app sends commands over **Bluetooth Low Energy** to a master ESP32, which interprets them and either acts directly or relays the command over **ESP‑NOW** to a second ESP32 that controls the remaining hardware.
+IRFPE is a small robot used to teach programming concepts hands‑on. A companion mobile app sends commands over **Bluetooth Low Energy** to a master ESP32, which interprets them and either acts directly or relays the command over **ESP‑NOW** to a second ESP32 that drives the rest of the hardware.
 
-The firmware lives as two independent Arduino sketches — one per chip.
+The firmware is split into two independent Arduino sketches — one per chip.
 
 <br/>
 
@@ -77,24 +74,26 @@ The firmware lives as two independent Arduino sketches — one per chip.
 
 <br/>
 
-### 🗺️ System Architecture
+---
+
+## 🗺️ System Architecture
 
 ```mermaid
 flowchart TB
-    APP["📱 Mobile App"]
-    ESP1["🧠 ESP1 — Master<br/><i>BLE server: RoboLearn</i>"]
+    APP(["📱 Mobile App"])
+    ESP1["🧠 ESP1 — Master\nBLE server: RoboLearn"]
     ESP2["🔊 ESP2 — Slave"]
 
-    MOTORS["🚗 DC Motors<br/>(L298N)"]
-    TFT["🖥️ TFT Display<br/>(ST7789)"]
-    US["📏 HC-SR04 ×4<br/>(ultrasonic)"]
+    MOTORS["🚗 DC Motors\nL298N"]
+    TFT["🖥️ TFT Display\nST7789"]
+    US["📏 HC-SR04 ×4\nultrasonic"]
 
     LED["💡 RGB LED"]
-    AUDIO["🔈 DFPlayer Mini<br/>(audio)"]
+    AUDIO["🔈 DFPlayer Mini\naudio"]
 
     APP -- "BLE" --> ESP1
-    ESP1 == "ESP-NOW: commands" ==> ESP2
-    ESP2 == "ESP-NOW: sensor data" ==> ESP1
+    ESP1 == "ESP-NOW · commands" ==> ESP2
+    ESP2 == "ESP-NOW · sensor data" ==> ESP1
 
     ESP1 --- MOTORS
     ESP1 --- TFT
@@ -103,15 +102,31 @@ flowchart TB
     ESP2 --- LED
     ESP2 --- AUDIO
 
-    classDef master fill:#1a1a2e,stroke:#E7352C,stroke-width:2px,color:#fff
-    classDef slave fill:#16213e,stroke:#0082FC,stroke-width:2px,color:#fff
-    classDef app fill:#0f3460,stroke:#fff,stroke-width:2px,color:#fff
-    classDef periph fill:#f5f5f5,stroke:#999,color:#333
+    classDef master fill:#0c447c,stroke:#378ADD,stroke-width:2px,color:#fff
+    classDef slave fill:#085041,stroke:#1D9E75,stroke-width:2px,color:#fff
+    classDef app fill:#4a1b0c,stroke:#D85A30,stroke-width:2px,color:#fff
+    classDef periph fill:#2c2c2a,stroke:#888780,color:#f1efe8
 
     class ESP1 master
     class ESP2 slave
     class APP app
     class MOTORS,TFT,US,LED,AUDIO periph
+```
+
+**Robot movement state machine** — how `robot.cpp` tracks heading and grid position:
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    NORTH --> EAST: TR
+    EAST --> SOUTH: TR
+    SOUTH --> WEST: TR
+    WEST --> NORTH: TR
+    NORTH --> WEST: TL
+    WEST --> SOUTH: TL
+    SOUTH --> EAST: TL
+    EAST --> NORTH: TL
+    NORTH --> NORTH: MF / MB
 ```
 
 <br/>
@@ -162,45 +177,41 @@ ESP2_Slave/
 
 <br/>
 
-<details>
-<summary><b>📡 BLE Service UUIDs</b></summary>
-<br/>
+**📡 BLE service**
 
 | | UUID |
 |---|---|
 | Service | `12345678-1234-1234-1234-123456789001` |
 | Characteristic (write) | `12345678-1234-1234-1234-123456789002` |
 
-</details>
-
-<details>
-<summary><b>⌨️ BLE Commands handled on ESP1</b></summary>
 <br/>
 
-| Command | Action |
-|:---:|---|
-| `SUN` | Show sun graphic |
-| `SLF` | Show seedling graphic |
-| `LF` | Show young leaves graphic |
-| `SFL` | Show full sunflower graphic |
-| `HPY` | Show happy face |
-| `SAD` | Show sad face |
-| `D0` `D1` `D2` `D3` `D5` `D10` | Show number on screen |
-| `CLR` | Clear / reset screen |
-| `MF` | Move forward one cell |
-| `MB` | Move backward one cell |
-| `TR` | Turn right 90° |
-| `TL` | Turn left 90° |
+**⌨️ Command reference — handled directly on ESP1**
 
-Anything else is forwarded as‑is to ESP2 over ESP‑NOW.
+| Command | Action | Returns |
+|:---:|---|:---:|
+| `SUN` | Show sun graphic | — |
+| `SLF` | Show seedling graphic | — |
+| `LF` | Show young leaves graphic | — |
+| `SFL` | Show full sunflower graphic | — |
+| `HPY` | Show happy face | — |
+| `SAD` | Show sad face | — |
+| `D0` `D1` `D2` `D3` `D5` `D10` | Show number on screen | — |
+| `CLR` | Clear / reset screen | — |
+| `MF` | Move forward one cell | — |
+| `MB` | Move backward one cell | — |
+| `TR` | Turn right 90° | — |
+| `TL` | Turn left 90° | — |
 
-</details>
+> Anything else is forwarded as‑is to ESP2 over ESP‑NOW.
 
-<details>
-<summary><b>🔌 Pin Map — Motors (L298N) & TFT (ST7789)</b></summary>
 <br/>
 
-| Motor Signal | GPIO |
+<details>
+<summary><b>🔌 Pin map — Motors (L298N) &amp; TFT (ST7789)</b></summary>
+<br/>
+
+| Motor signal | GPIO |
 |:---:|:---:|
 | ENA | 33 |
 | ENB | 13 |
@@ -209,7 +220,7 @@ Anything else is forwarded as‑is to ESP2 over ESP‑NOW.
 | IN3 | 27 |
 | IN4 | 14 |
 
-| TFT Signal | GPIO |
+| TFT signal | GPIO |
 |:---:|:---:|
 | CS | 22 |
 | RST | 17 |
@@ -232,9 +243,7 @@ Anything else is forwarded as‑is to ESP2 over ESP‑NOW.
 
 <br/>
 
-<details>
-<summary><b>⌨️ Commands handled on ESP2</b></summary>
-<br/>
+**⌨️ Command reference — handled on ESP2**
 
 | Command | Action |
 |:---:|---|
@@ -246,19 +255,19 @@ Anything else is forwarded as‑is to ESP2 over ESP‑NOW.
 | `PL1`–`PL8` | Play audio track 1–8 |
 | `SP` | Stop audio |
 
-</details>
-
-<details>
-<summary><b>🔌 Pin Map — RGB LED & DFPlayer Mini</b></summary>
 <br/>
 
-| RGB Signal | GPIO |
+<details>
+<summary><b>🔌 Pin map — RGB LED &amp; DFPlayer Mini</b></summary>
+<br/>
+
+| RGB signal | GPIO |
 |:---:|:---:|
 | RED | 14 |
 | GREEN | 12 |
 | BLUE | 13 |
 
-| DFPlayer Signal | GPIO |
+| DFPlayer signal | GPIO |
 |:---:|:---:|
 | RX (ESP2 receives) | 27 |
 | TX (ESP2 transmits) | 26 |
@@ -284,6 +293,11 @@ sequenceDiagram
     Note left of ESP1: front / back / left / right (cm)
 ```
 
+| Direction | Packet | Purpose |
+|---|---|---|
+| ESP1 → ESP2 | `CommandPacket { char cmd[16] }` | LED, audio, and `SENSE` requests |
+| ESP2 → ESP1 | `SensorPacket { float d1, d2, d3, d4 }` | Front / back / left / right ultrasonic distances |
+
 > ⚠️ Each board's MAC address is hard‑coded as the peer address on the other side (`slaveAddress[]` in `espnow_master.cpp`). If you re‑flash either board, verify the peer MAC still matches — print `WiFi.macAddress()` over Serial to check.
 
 <br/>
@@ -292,9 +306,7 @@ sequenceDiagram
 
 ## ⚙️ Building & Flashing
 
-<details open>
-<summary><b>📦 Required Libraries</b></summary>
-<br/>
+**📦 Required libraries**
 
 | Library | Used by |
 |---|:---:|
@@ -304,9 +316,19 @@ sequenceDiagram
 | `DFRobotDFPlayerMini` | ESP2 |
 | `esp_now` / `WiFi` | Both *(ESP32 core)* |
 
-</details>
+<br/>
 
-**Steps**
+```mermaid
+flowchart LR
+    A["1️⃣ Open esp1/esp1.ino"] --> B["2️⃣ Flash ESP1"]
+    B --> C["3️⃣ Open esp2/esp2.ino"]
+    C --> D["4️⃣ Flash ESP2"]
+    D --> E["5️⃣ Verify peer MAC"]
+    E --> F["6️⃣ Pair RoboLearn 🚀"]
+
+    classDef step fill:#26215c,stroke:#7F77DD,stroke-width:1.5px,color:#fff
+    class A,B,C,D,E,F step
+```
 
 1. Open `ESP1_Master/esp1/esp1.ino` in Arduino IDE → select your ESP32 board → flash the master unit
 2. Open `ESP2_Slave/esp2/esp2.ino` in Arduino IDE → select your ESP32 board → flash the slave unit
@@ -329,5 +351,7 @@ sequenceDiagram
 <div align="center">
 
 *Built with ❤️ as part of a senior engineering capstone project.*
+
+<sub>Arab American University · Faculty of Engineering · Computer Systems Engineering</sub>
 
 </div>
