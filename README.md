@@ -113,25 +113,7 @@ flowchart TB
     class MOTORS,TFT,US,LED,AUDIO periph
 ```
 
-**Robot movement state machine** — how `robot.cpp` tracks heading and grid position:
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    NORTH --> EAST: TR
-    EAST --> SOUTH: TR
-    SOUTH --> WEST: TR
-    WEST --> NORTH: TR
-    NORTH --> WEST: TL
-    WEST --> SOUTH: TL
-    SOUTH --> EAST: TL
-    EAST --> NORTH: TL
-    NORTH --> NORTH: MF / MB
-```
-
-<br/>
-
----
 
 ## 📂 Repository Structure
 
