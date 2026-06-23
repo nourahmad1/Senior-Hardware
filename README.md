@@ -19,7 +19,7 @@ Faculty of Engineering · Computer Systems Engineering
 
 | 🧑‍🏫 Supervisor | 🎓 Student | 🎓 Student | 🎓 Student |
 |:---:|:---:|:---:|:---:|
-| Dr. Sami Awad  | Nour Albzoor | Diana Ghannam | Misk Haneef | 
+| Dr. Sami Awad |Nour Albzoor | Diana Ghannam | Misk Haneef | 
 
 </div>
 
